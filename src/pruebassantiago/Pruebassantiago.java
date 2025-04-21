@@ -5,13 +5,14 @@
 package pruebassantiago;
 
 import java.util.Scanner;
-
+import java.util.Random;
 public class Pruebassantiago {
 
     static Scanner INPUT = new Scanner(System.in);
     static boolean[][] sociedadMatriz = new boolean [15][15];
     static boolean celulaViva = true;
     static boolean celulaMuerta = false;
+    static Random Randomizador = new Random();
 
     public static void main(String[] args) {
          mostrarMenu();
@@ -20,10 +21,11 @@ public class Pruebassantiago {
     public static void mostrarMenu(){
         int opcion;
         do {
-            System.out.println("Juego de la Vida");
-            System.out.println("1. Iniciar Juego");
-            System.out.println("2. Mostrar Reglas");
-            System.out.println("3. Salir del Program");
+            System.out.println("Bienvenido al Juego de la Vida.");
+            System.out.println("En este juego simularas el crecimiento de un Grupo de Celulas de acuerdo a reglas de Reproduccion, Soledad y Sobrepoblacion.");
+            System.out.println("1. Iniciar Juego.");
+            System.out.println("2. Mostrar Reglas.");
+            System.out.println("3. Salir del Programa.");
 
             opcion = validador("");
 
@@ -35,7 +37,7 @@ public class Pruebassantiago {
                      mostrarReglas();
                      break;
                  case 3:
-                     System.out.println("terminando el programa");
+                     System.out.println("Saliendo del programa");
                      break;
                  default:
                      System.out.println("opcion no valida");
@@ -59,7 +61,7 @@ public class Pruebassantiago {
             }
         } else {
            
-            System.out.println(" Ingrese un número entero.");
+            System.out.println(" Ingrese un numero entero.");
             INPUT.nextLine();
            
         }
@@ -69,7 +71,7 @@ public class Pruebassantiago {
     public static void iniciarMatriz(){
         int piso = 0;
         int techo = 0;
-        
+        int salir = 0;
         int cantidadCelulas = 0;
        
         do{
@@ -82,71 +84,85 @@ public class Pruebassantiago {
         sociedadMatriz = MatrizParametrizada;///// Se reasigna las dimensiones a la matriz
         
         do{
-            cantidadCelulas = validador("Con cuentas células iniciará la simulacion?\n El numero debe ser positivo, mayor a cero.\n");
-        }while(cantidadCelulas <= 0);
+            cantidadCelulas = validador("Con cuentas celulas iniciara la simulacion?\n El numero debe ser positivo, mayor a cero.\n");
+        }while(cantidadCelulas <= 0 || cantidadCelulas > (techo * techo) );
         int AsignacionPosicion = 0;
 
-        AsignacionPosicion = validador("Elija el modo de asignacion de las Células en la Matríz:\n 1. Aleatorio. \n 2. Manual.\n");
+        AsignacionPosicion = validador("Elija el modo de asignacion de las Celulas en la Matriz:\n 1. Aleatorio. \n 2. Manual.\n");
         int fila = 0;
         int columna = 0; 
         
         switch(AsignacionPosicion){
             case 1:
-                
-                
-                for(int i = 0; i<cantidadCelulas;i++){
-                    int ValorAleatorio = (int) (Math.random()*(techo-piso+1));
-                    fila = ValorAleatorio;
-                    ValorAleatorio = ValorAleatorio;
-                    columna = ValorAleatorio;
+                salir = 0;
                     
-                    sociedadMatriz[fila][columna] = true;
-
-                }
+                do{
+                    int ValorAleatorio1 = Randomizador.nextInt(techo);
+                    fila = ValorAleatorio1;
+                    int ValorAleatorio2 = Randomizador.nextInt(techo);
+                    columna = ValorAleatorio2;
+                        
+                    if(sociedadMatriz[fila][columna] == false){
+                        sociedadMatriz[fila][columna] = true;
+                        salir++;
+                    }
+                }while(salir != cantidadCelulas); 
                 matrizEnPantalla(sociedadMatriz, techo);
+                INPUT.nextLine();
+                
                 break;
             case 2: 
 
-                int salir = 0;
+                salir = 0;
                                     
                 do{
                     do{
-                        fila = validador("Indique la Fila\n");
+                        System.out.printf("Rango: "+techo+"\n");
+                        fila = validador("Indique la Fila(Debe estar en el rango asignado de la Matriz)\n");
+                        
                     }while(fila >= techo || fila < 0);
                     do{
-                        columna =validador("Indique la Columna\n");
+                        System.out.printf("Rango: "+techo+"\n");
+                        columna =validador("Indique la Columna(Debe estar en el rango asignado de la Matriz)\n");
+                        
                     }while(columna >= techo || columna < 0);
                     
                     sociedadMatriz[fila][columna]= celulaViva;
                     
                     salir++;
                 }while(salir !=cantidadCelulas);
+                
+                matrizEnPantalla(sociedadMatriz, techo);
+                INPUT.nextLine();
                 break;  
             default:
-                System.out.print("Opcion Inválida.");
+                System.out.print("Opcion Invalida.");
         }
     }
     
     public static void matrizEnPantalla(boolean sociedadMatriz [][], int techo){
         String interruptor = "";
         int primeraVez = 0; 
-                
+        INPUT.nextLine/////Limpia el buffer
+        ();
         do {
             if(primeraVez == 0){
-                
-                mostrarEstadoActual(sociedadMatriz);
-                System.out.println("Desea continuar la simulacion? \n y, para continuar \n n, para Detener.");
-                interruptor = INPUT.nextLine();
-                primeraVez++;
-                
-            }else{
-                siguienteGeneracion(sociedadMatriz, techo);
-                mostrarEstadoActual(sociedadMatriz);
-            System.out.println("Desea continuar la simulacion? \n y, para continuar \n n, para Detener.");
-            interruptor = INPUT.nextLine();  
-            }   
-        }while(interruptor.equalsIgnoreCase("y"));
-    }
+
+                System.out.println("Generacion Celular inicial.");
+            }else {
+                System.out.println("Siguiente Generacion Celular.");
+                sociedadMatriz = siguienteGeneracion(sociedadMatriz, techo);
+
+            }  
+            
+            mostrarEstadoActual(sociedadMatriz);
+            System.out.println("Desea continuar la simulacion? \n n, para Detener.\n Cualquier otro para continuar ");
+            interruptor = INPUT.nextLine();
+            primeraVez++;   
+  
+
+        }while(!interruptor.equalsIgnoreCase("n"));
+    }   
     
     public static void mostrarEstadoActual(boolean sociedadMatriz [][]){
         for(int i = 0; i < sociedadMatriz.length; i++) {
@@ -166,7 +182,7 @@ public class Pruebassantiago {
         
         for (int i = 0; i < techo; i++ ){
             for (int j = 0; j < techo; j++){
-                int celulasVivas = revisarCelulasAlrededor(i, j,techo);////Esta seccion del Codigo recibe la cantidad de Celulas analizadas en el metodo "revisarCelulasAlrededor", con esta inforrmacion determina el estado de la Matriz en la posicion indicada
+                int celulasVivas = revisarCelulasAlrededor(i, j,techo,sociedadMatriz);////Esta seccion del Codigo recibe la cantidad de Celulas analizadas en el metodo "revisarCelulasAlrededor", con esta inforrmacion determina el estado de la Matriz en la posicion indicada
                 
                 if (sociedadMatriz[i][j]==true) {
                     if(celulasVivas == 2 || celulasVivas == 3){///Aqui analiza cuantas celulas aadyacents hay vivas, para determinar si el estado es true y lo mantiene.
@@ -185,11 +201,11 @@ public class Pruebassantiago {
                 }
             }
         }
-        sociedadMatriz = generacionNueva;
-        return sociedadMatriz;
+          
+        return generacionNueva;
     }
     
-    public static int revisarCelulasAlrededor (int fila, int columna, int techo){
+    public static int revisarCelulasAlrededor (int fila, int columna, int techo, boolean sociedadMatriz [][]){
         int contadorCelulas= 0;
         
         if (fila > 0) { //ESTE BLOQUE DE CODIGO VERIFICA EL LIMITE INICIAL DE LA MATRIZ, POR ENDE, EMPIEZA ASEGURANDO QUE EL PARAMETRO FILA SEA MAYOR A CERO DE CUMPLIR
@@ -213,10 +229,8 @@ public class Pruebassantiago {
         System.out.println("\n Reglas: ");
         System.out.println("1- Una célula viva con menos de 2 vecinos vivos muere por soledad ");
         System.out.println("2- Una célula viva con 2 o 3 vecinos vivos sobrevive ");
-        System.out.println("3-una célula viva con más de 3 vecinos vivos muere por superpoblación");
-        System.out.println("4-una célula muerta con exactamente 3 vecinos vivos revive por reproducción");
-    } 
-    
-    
-    
+        System.out.println("3-una célula viva con más de 3 vecinos vivos muere por superpoblacion");
+        System.out.println("4-una célula muerta con exactamente 3 vecinos vivos revive por reproduccion");
+        System.out.println();
+    }    
 }
